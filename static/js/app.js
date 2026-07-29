@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const refreshBtn = document.getElementById('refresh-btn');
+    const exportBtn = document.getElementById('export-btn');
     const refreshIcon = refreshBtn.querySelector('.spinner-icon');
     const loadingState = document.getElementById('loading-state');
     const errorState = document.getElementById('error-state');
@@ -69,6 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentReleases = data.releases;
                 renderReleases(data.releases);
                 
+                // Enable CSV export button since data is now loaded
+                exportBtn.disabled = false;
+                
                 loadingState.classList.add('hidden');
                 releasesList.classList.remove('hidden');
             } else {
@@ -119,6 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${release.summary}
                 </div>
                 <div class="release-card-actions">
+                    <button class="btn btn-secondary copy-btn" data-index="${index}" title="Copy to clipboard">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
                     <button class="btn btn-tweet open-tweet-btn" data-index="${index}">
                         <i class="fa-brands fa-x-twitter"></i> Tweet Update
                     </button>
@@ -128,6 +135,22 @@ document.addEventListener('DOMContentLoaded', () => {
             releasesList.appendChild(card);
         });
 
+        // Add event listeners to Copy buttons
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = e.currentTarget.getAttribute('data-index');
+                const release = currentReleases[index];
+                const text = `BigQuery Update: ${release.title}\n\n${stripHtml(release.summary).trim()}\n\nRead more: ${release.link}`;
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast("Copied note details to clipboard!");
+                }).catch(err => {
+                    console.error('Could not copy text: ', err);
+                    showToast("Failed to copy text.");
+                });
+            });
+        });
+
         // Add event listeners to Tweet buttons
         document.querySelectorAll('.open-tweet-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -135,6 +158,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 openTweetModal(currentReleases[index]);
             });
         });
+    };
+
+    // Export to CSV function
+    const exportToCSV = () => {
+        if (currentReleases.length === 0) return;
+        
+        const headers = ["Title", "Published Date", "Link", "Summary"];
+        
+        const escapeCSVCell = (text) => {
+            if (text === null || text === undefined) return '';
+            const stringified = String(text);
+            const escaped = stringified.replace(/"/g, '""');
+            if (escaped.includes(',') || escaped.includes('\n') || escaped.includes('\r') || escaped.includes('"')) {
+                return `"${escaped}"`;
+            }
+            return escaped;
+        };
+
+        const rows = currentReleases.map(release => [
+            release.title,
+            formatDate(release.published),
+            release.link,
+            stripHtml(release.summary).trim()
+        ]);
+        
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(escapeCSVCell).join(','))
+        ].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `bigquery_release_notes_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("CSV file exported successfully!");
     };
 
     // Tweet Modal Logic
@@ -188,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
     refreshBtn.addEventListener('click', fetchReleases);
     retryBtn.addEventListener('click', fetchReleases);
+    exportBtn.addEventListener('click', exportToCSV);
     
     closeModal.addEventListener('click', hideTweetModal);
     cancelTweetBtn.addEventListener('click', hideTweetModal);
