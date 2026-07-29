@@ -93,6 +93,12 @@ body {
     font-weight: 500;
 }
 
+.controls-area {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
 /* Buttons */
 .btn {
     display: inline-flex;
@@ -105,6 +111,12 @@ body {
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid transparent;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .btn-primary {
@@ -314,6 +326,7 @@ body {
 .release-card-actions {
     display: flex;
     justify-content: flex-end;
+    gap: 0.75rem;
     margin-top: 1.25rem;
     padding-top: 1rem;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
