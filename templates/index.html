@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-fontawesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="glass-bg"></div>
+    
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-database"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>BigQuery</h1>
+                    <span>Release Notes Explorer</span>
+                </div>
+            </div>
+            
+            <div class="controls-area">
+                <button id="refresh-btn" class="btn btn-primary" title="Refresh Release Notes">
+                    <i class="fa-solid fa-arrows-rotate spinner-icon"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard-content">
+            <!-- Loading State -->
+            <div id="loading-state" class="state-container">
+                <div class="spinner-large"></div>
+                <p>Fetching latest release notes from Google Cloud...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="error-state" class="state-container hidden">
+                <div class="error-icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3>Failed to load release notes</h3>
+                <p id="error-message">Something went wrong.</p>
+                <button id="retry-btn" class="btn btn-secondary">Try Again</button>
+            </div>
+
+            <!-- Releases Container -->
+            <div id="releases-list" class="releases-list hidden">
+                <!-- Release cards will be injected here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Tweet Modal -->
+    <div id="tweet-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-brands fa-x-twitter"></i> Tweet Release Note</h3>
+                <button class="close-modal-btn" id="close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="tweet-preview-card">
+                    <textarea id="tweet-textarea" rows="5" maxlength="280"></textarea>
+                    <div class="tweet-char-counter">
+                        <span id="char-count">0</span>/280
+                    </div>
+                </div>
+                <div class="tweet-tips">
+                    <p><i class="fa-solid fa-lightbulb"></i> Note: The character limit for standard tweets is 280 characters. We've pre-filled a clean summary for you!</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-tweet-btn">Cancel</button>
+                <button class="btn btn-tweet" id="confirm-tweet-btn">
+                    <i class="fa-brands fa-x-twitter"></i> Tweet Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <span id="toast-message">Action completed successfully!</span>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
