@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const refreshBtn = document.getElementById('refresh-btn');
     const exportBtn = document.getElementById('export-btn');
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
     const refreshIcon = refreshBtn.querySelector('.spinner-icon');
     const loadingState = document.getElementById('loading-state');
     const errorState = document.getElementById('error-state');
@@ -248,7 +250,29 @@ document.addEventListener('DOMContentLoaded', () => {
         tweetModal.classList.add('hidden');
     };
 
+    // Theme Switcher Logic
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    if (currentTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeIcon.classList.replace('fa-moon', 'fa-sun');
+    }
+
     // Event listeners
+    themeToggle.addEventListener('click', () => {
+        const activeTheme = document.documentElement.getAttribute('data-theme');
+        if (activeTheme === 'light') {
+            document.documentElement.removeAttribute('data-theme');
+            themeIcon.classList.replace('fa-sun', 'fa-moon');
+            localStorage.setItem('theme', 'dark');
+            showToast("Switched to Dark Mode");
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+            localStorage.setItem('theme', 'light');
+            showToast("Switched to Light Mode");
+        }
+    });
+
     refreshBtn.addEventListener('click', fetchReleases);
     retryBtn.addEventListener('click', fetchReleases);
     exportBtn.addEventListener('click', exportToCSV);
